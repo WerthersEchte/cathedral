@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"cathedral.game","l":"de.fhkiel.ki.cathedral.ai"},{"m":"cathedral.game","l":"de.fhkiel.ki.cathedral.game"},{"m":"cathedral.game","l":"de.fhkiel.ki.cathedral.gui"}];updateSearchResults();
