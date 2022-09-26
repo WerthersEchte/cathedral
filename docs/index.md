@@ -1,5 +1,5 @@
 # A java implementation for the board game cathedral
-[https://github.com/WerthersEchte/cathedral-game](https://github.com/WerthersEchte/cathedral-game)
+[https://github.com/WerthersEchte/cathedral](https://github.com/WerthersEchte/cathedral)
 
 [Javadocs](./javadoc/index.html)
 

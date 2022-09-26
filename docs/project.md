@@ -75,11 +75,13 @@ test {
     useJUnitPlatform()
 }
 ```
+
 14. Rebuild your project with gradle  
     ![](./img/project/gradle_rebuild.png)
 
 16. Test your project  
-   Create a Class with a main function like this:
+   Create a Class with a main function like this:  
+   
 ```java
 import de.fhkiel.ki.cathedral.gui.CathedralGUI;
 
@@ -91,6 +93,7 @@ public class Test {
 ```
 
 17. Run the main function. You should see the cathedral GUI
+
 
 Next:  
 [Using the game implementation](./game.html)  
