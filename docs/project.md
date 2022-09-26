@@ -44,11 +44,13 @@ flatDir {
 ```gradle
 implementation name: 'cathedral-game-1.0'
 ```
+
 __<span style="color:red">If you use newer binaries change `cathedral-game-1.0` to the ones you use</span>__  
    Gradle will load the binaries, allow you to use them with the source and javadoc-support  
 
 13. `build.gradle` should look somewhere like this:  
-```gradle
+
+```gradle  
 plugins {
     id 'java'
 }
