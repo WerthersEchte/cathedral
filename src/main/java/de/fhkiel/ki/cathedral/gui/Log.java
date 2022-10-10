@@ -1,8 +1,8 @@
 package de.fhkiel.ki.cathedral.gui;
 
 import static de.fhkiel.ki.cathedral.game.Color.Black;
-import static de.fhkiel.ki.cathedral.gui.CathedralGUI.getGame;
-import static de.fhkiel.ki.cathedral.gui.CathedralGUI.register;
+import static de.fhkiel.ki.cathedral.gui.GameProxy.getGame;
+import static de.fhkiel.ki.cathedral.gui.GameProxy.register;
 
 import de.fhkiel.ki.cathedral.game.Placement;
 import de.fhkiel.ki.cathedral.game.Turn;
@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.JTextArea;
 
-class Log extends JTextArea implements CathedralGUI.Listener {
+class Log extends JTextArea implements GameProxy.Listener {
   private static Log LOG;
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH.mm.ss.SSS");
 

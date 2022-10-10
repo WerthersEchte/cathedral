@@ -1,7 +1,7 @@
 package de.fhkiel.ki.cathedral.gui;
 
-import static de.fhkiel.ki.cathedral.gui.CathedralGUI.getGame;
-import static de.fhkiel.ki.cathedral.gui.CathedralGUI.register;
+import static de.fhkiel.ki.cathedral.gui.GameProxy.getGame;
+import static de.fhkiel.ki.cathedral.gui.GameProxy.register;
 import static java.util.function.Predicate.not;
 
 import de.fhkiel.ki.cathedral.game.Building;
@@ -17,7 +17,7 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-class Pieces extends JPanel implements CathedralGUI.Listener {
+class Pieces extends JPanel implements GameProxy.Listener {
 
   private final List<Piece> buildings = new ArrayList<>();
 
