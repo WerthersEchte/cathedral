@@ -6,7 +6,7 @@ import de.fhkiel.ki.cathedral.game.Turn;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GameProxy {
+public class ControlGameProxy {
   private static final Set<Listener> listeners = new HashSet<>();
   private static Game GAME;
 
@@ -62,11 +62,11 @@ public class GameProxy {
   }
 
   interface Listener {
-    void newGame();
+    default void newGame(){};
 
-    void newPlacement(Placement placement);
+    default void newPlacement(Placement placement){};
 
-    void undoTurn(Turn turn);
+    default void undoTurn(Turn turn){};
 
     default void gameChanged() {
     }

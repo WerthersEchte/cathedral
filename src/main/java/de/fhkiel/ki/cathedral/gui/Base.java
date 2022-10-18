@@ -1,10 +1,10 @@
 package de.fhkiel.ki.cathedral.gui;
 
-import static de.fhkiel.ki.cathedral.gui.GameProxy.getGame;
-import static de.fhkiel.ki.cathedral.gui.GameProxy.ignoreRules;
-import static de.fhkiel.ki.cathedral.gui.GameProxy.resetGame;
-import static de.fhkiel.ki.cathedral.gui.GameProxy.takeTurn;
-import static de.fhkiel.ki.cathedral.gui.GameProxy.undoTurn;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.getGame;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.ignoreRules;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.resetGame;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.takeTurn;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.undoTurn;
 import static de.fhkiel.ki.cathedral.gui.Log.getLog;
 
 import de.fhkiel.ki.cathedral.game.Building;
@@ -43,7 +43,7 @@ class Base extends JFrame {
     super("Cathedral");
   }
 
-  public void create() {
+  public void create(Settings settings) {
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setSize(900, 600);
 
@@ -164,7 +164,7 @@ class Base extends JFrame {
         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     infoAndAi.addTab("Log", scrollLog);
 
-    Discord discord = new Discord();
+    GUIDiscord discord = new GUIDiscord(new ControlDiscord(settings), board);
     infoAndAi.addTab("Discord", discord);
 
     base.add(infoAndAi);
@@ -188,8 +188,5 @@ class Base extends JFrame {
 
   void addAI(String name, AI ai) {
     infoAndAi.addTab(name, ai);
-  }
-
-  public void configureDiscord(Settings settings) {
   }
 }

@@ -1,7 +1,7 @@
 package de.fhkiel.ki.cathedral.gui;
 
-import static de.fhkiel.ki.cathedral.gui.GameProxy.getGame;
-import static de.fhkiel.ki.cathedral.gui.GameProxy.register;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.getGame;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.register;
 import static de.fhkiel.ki.cathedral.gui.Log.getLog;
 import static de.fhkiel.ki.cathedral.gui.Util.gameColorToFontcolor;
 import static de.fhkiel.ki.cathedral.gui.Util.gameColorToPaint;
@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-class Info extends JPanel implements GameProxy.Listener {
+class Info extends JPanel implements ControlGameProxy.Listener {
 
   private final JLabel black;
   private final JLabel white;
