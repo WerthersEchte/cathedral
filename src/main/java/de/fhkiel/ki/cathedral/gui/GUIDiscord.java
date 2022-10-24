@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -49,10 +50,11 @@ import javax.swing.SwingUtilities;
 
 class GUIDiscord extends JPanel implements ControlDiscord.Listener {
 
+  private final JButton join;
   private JTextArea discordConsole;
 
   private JPasswordField token;
-  private JComboBox<String> channelList;
+  private JComboBox<String> channelList, gameList;
 
 
   private JLabel mStateHostingGame, mStateJoiningGame, mStateAutoJoinGame, mStateRunningGame;
@@ -109,6 +111,31 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     state.add(mStateRunningGame = new JLabel("Running"));
     mStateRunningGame.setForeground(java.awt.Color.RED);
 
+    state.add(new JLabel(" |  Color: "));
+    JToggleButton colorBlack = new JToggleButton("Black");
+    colorBlack.setSelected(true);
+    JToggleButton colorWhite = new JToggleButton("White");
+    state.add(colorBlack);
+    state.add(colorWhite);
+    colorBlack.addItemListener(itemEvent -> {
+      if(colorBlack.isSelected()){
+        colorWhite.setSelected(false);
+        discordconnection.setPlayingColor(Black);
+      } else {
+        colorWhite.setSelected(true);
+        discordconnection.setPlayingColor(White);
+      }
+    });
+    colorWhite.addItemListener(itemEvent -> {
+      if(colorWhite.isSelected()){
+        colorBlack.setSelected(false);
+        discordconnection.setPlayingColor(White);
+      } else {
+        colorBlack.setSelected(true);
+        discordconnection.setPlayingColor(Black);
+      }
+    });
+
     add(state);
 
     JPanel channel = new JPanel();
@@ -133,35 +160,20 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     gameStart.addActionListener(e -> this.discordconnection.startGame());
     game.add(gameStart);
 
+    game.add(new JLabel("  ||  "));
 
     JToggleButton gameJoin = new JToggleButton("Autojoin Game");
-    gameJoin.addItemListener(itemEvent -> discordconnection.autoJoin(gameJoin.isSelected()));
+    gameJoin.addItemListener(itemEvent -> setAutoJoin(gameJoin.isSelected()));
     game.add(gameJoin);
 
-    game.add(new JLabel("Color: "));
-    JToggleButton colorBlack = new JToggleButton("Black");
-    colorBlack.setSelected(true);
-    JToggleButton colorWhite = new JToggleButton("White");
-    game.add(colorBlack);
-    game.add(colorWhite);
-    colorBlack.addItemListener(itemEvent -> {
-      if(colorBlack.isSelected()){
-        colorWhite.setSelected(false);
-        discordconnection.setPlayingColor(Black);
-      } else {
-        colorWhite.setSelected(true);
-        discordconnection.setPlayingColor(White);
-      }
-    });
-    colorWhite.addItemListener(itemEvent -> {
-      if(colorWhite.isSelected()){
-        colorBlack.setSelected(false);
-        discordconnection.setPlayingColor(White);
-      } else {
-        colorBlack.setSelected(true);
-        discordconnection.setPlayingColor(Black);
-      }
-    });
+    game.add(Box.createRigidArea(new Dimension(5, 0)));
+
+    join = new JButton("Join Game: ");
+    join.addActionListener(itemEvent -> discordconnection.join((String) gameList.getSelectedItem()));
+    join.setEnabled(false);
+    game.add(join);
+    gameList = new JComboBox<>();
+    game.add(gameList);
 
     add(game);
 
@@ -170,6 +182,12 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     add(scrollConsole);
+  }
+
+  private void setAutoJoin(boolean on) {
+    discordconnection.autoJoin(on);
+    join.setEnabled(!on && gameList.getItemCount() > 0);
+    gameList.setEnabled(!on);
   }
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH.mm.ss.SSS");
@@ -185,11 +203,29 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
 
   @Override
   public void channelChanged() {
+    Arrays.stream(channelList.getActionListeners()).forEach(actionListener -> channelList.removeActionListener(actionListener));
     channelList.removeAllItems();
     for(String channel : discordconnection.getChannelList()){
       channelList.addItem(channel);
     }
     channelList.setSelectedItem(discordconnection.getSelectedChannel());
+    channelList.addItemListener(e -> discordconnection.setSelectedChannel((String) channelList.getSelectedItem()));
+  }
+
+  @Override
+  public void joinableGamesChanged() {
+    String old = (String) gameList.getSelectedItem();
+
+    gameList.removeAllItems();
+    for(String game : discordconnection.getJoinableGames()){
+      gameList.addItem(game);
+    }
+    if(discordconnection.getJoinableGames().contains(old)) {
+      gameList.setSelectedItem(old);
+    } else {
+      discordconnection.getJoinableGames().stream().findFirst().ifPresent(g ->gameList.setSelectedItem(g));
+    }
+    join.setEnabled(!discordconnection.getState().contains(ControlDiscord.State.AutoJoinGame) && gameList.getItemCount() > 0);
   }
 
   @Override

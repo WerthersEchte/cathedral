@@ -22,12 +22,9 @@ import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
-import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.core.util.OrderUtil;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -49,14 +46,16 @@ public class ControlDiscord implements ControlGameProxy.Listener {
   private static final String JOIN_ACCEPT = "plays as ";
   private static final String GAME_START = "Game starts with ";
   private static final String START_GAME = "Starting a new game. Playing the color ";
-  private static final long TIMEOUT = 5000L;
+  private static final long TIMEOUT = 30000L;
   public static final String TURN_START = "Turn: ";
   public static final String TURN_PASS = "pass";
   public static final int DELAY = 500;
 
+
   public interface Listener{
     void info(String info);
     void channelChanged();
+    void joinableGamesChanged();
     void stateChanged();
     BufferedImage gameState();
   }
@@ -78,6 +77,11 @@ public class ControlDiscord implements ControlGameProxy.Listener {
   private void channelChanged(){
     if(mListener != null){
       mListener.channelChanged();
+    }
+  }
+  private void joinableGamesChanged(){
+    if(mListener != null){
+      mListener.joinableGamesChanged();
     }
   }
 
@@ -163,14 +167,17 @@ public class ControlDiscord implements ControlGameProxy.Listener {
         g -> OrderUtil.orderGuildChannels(g.getChannels()).collectList().blockOptional().orElse(new ArrayList<>()).forEach(
             c -> {
               if(c instanceof TextChannel t){
-                channelByGuildAndName.put(g.getName() + "::" + c.getName(), c.getId());
+                channelByGuildAndName.put(g.getName() + "::" + t.getName(), t.getId());
               }
             }
         ));
+
     if(mSelectedChannel == null || mSelectedChannel.isBlank() || !channelByGuildAndName.containsKey(mSelectedChannel)){
       mSelectedChannel = channelByGuildAndName.keySet().stream().findFirst().orElse("");
     }
+
     info("Found channel: " + channelByGuildAndName.keySet().stream().reduce((s, s2) -> s + "; " + s2).orElse("NO CHANNEL"));
+    info("Selected channel: " + mSelectedChannel);
     channelChanged();
   }
 
@@ -182,8 +189,8 @@ public class ControlDiscord implements ControlGameProxy.Listener {
   }
 
   private void addDefaultDiscordListener() {
-    // on new/open joinable game
-    subscribeToDiscord().subscribe(this::onNewJoinableGame);
+    // on new joinable game
+    subscribeToDiscord().subscribe(this::onJoinableGame);
     // on automatically joining a game
     subscribeToDiscord().filter(m -> isInState(State.AutoJoinGame)).subscribe(this::onAutoJoinGame);
     // on joining a game
@@ -205,8 +212,45 @@ public class ControlDiscord implements ControlGameProxy.Listener {
     }
   }
 
-  private synchronized void onNewJoinableGame(Message message) {
+  private record JoinableGame (User host, Color color) {}
 
+  private Map<String, JoinableGame> joinableGames = new HashMap<>();
+
+  List<String> getJoinableGames(){
+    return new ArrayList<>(joinableGames.keySet());
+  }
+
+  private synchronized void onJoinableGame(Message message) {
+    Optional<User> host = message.getAuthor();
+    if(host.isPresent()) {
+      String ident = host.get().getUsername() + "(" + host.get().getId().asString() + ")";
+      if (message.getContent().startsWith(START_GAME)) {
+        joinableGames.put(host.get().getUsername() + "(" + host.get().getId().asString() + ")", new JoinableGame(host.get(), getColorFromEnd(message.getContent())));
+        new Timer().schedule(new TimerTask() {
+          @Override
+          public void run() {
+            if (joinableGames.remove(ident) != null){
+              info("New game from " + ident + " timed out");
+              joinableGamesChanged();
+            }
+          }
+        }, TIMEOUT);
+        joinableGamesChanged();
+
+      } else if (message.getContent().startsWith(GAME_START)) {
+        if (joinableGames.remove(ident) != null){
+          info("Game from " + ident + " begun");
+          joinableGamesChanged();
+        }
+      }
+    }
+  }
+
+  public void join(String game) {
+    JoinableGame gameToJoin = joinableGames.get(game);
+    if(gameToJoin != null){
+      joinGame(gameToJoin.host, gameToJoin.color);
+    }
   }
 
   private Timer waitForJoin;
@@ -216,30 +260,32 @@ public class ControlDiscord implements ControlGameProxy.Listener {
         !isInState(State.RunningGame)
     ) {
       if(message.getContent().startsWith(START_GAME)){
-        Color colorOfHost = getColorFromEnd(message.getContent());
-        Optional<User> host = message.getAuthor();
-        if(host.isPresent() && colorOfHost != None && colorOfHost != mPlayingColor){
-          setState(State.JoiningGame, true);
-
-          mCurrentGamePlayers.clear();
-          addPlayerToGame(colorOfHost, host.get().getId());
-          addPlayerToGame(mPlayingColor, connection.getSelfId());
-
-          waitForJoin = new Timer();
-          waitForJoin.schedule(new TimerTask() {
-            @Override
-            public void run() {
-              info("Could not join game from " + message.getAuthor().map(User::getUsername).orElse("Unknown") + " due timeout");
-              setState(State.JoiningGame, false);
-            }
-          }, TIMEOUT);
-
-          replyToMessage(message, JOIN_GAME + gameColorToString(mPlayingColor));
-
-        } else {
-          info("Can not join game from " + message.getAuthor().map(User::getUsername).orElse("Unknown") + " as they are playing " + gameColorToString(colorOfHost));
-        }
+        message.getAuthor().ifPresent(user -> joinGame(user, getColorFromEnd(message.getContent())));
       }
+    }
+  }
+
+  private void joinGame( User host, Color colorOfHost) {
+    if(colorOfHost != None && colorOfHost != mPlayingColor){
+      setState(State.JoiningGame, true);
+
+      mCurrentGamePlayers.clear();
+      addPlayerToGame(colorOfHost, host.getId());
+      addPlayerToGame(mPlayingColor, connection.getSelfId());
+
+      waitForJoin = new Timer();
+      waitForJoin.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          info("Could not join game from " + host.getUsername() + " due timeout");
+          setState(State.JoiningGame, false);
+        }
+      }, TIMEOUT);
+
+      replyToMessage(host, JOIN_GAME + gameColorToString(mPlayingColor));
+
+    } else {
+      info("Can not join game from " + host.getUsername() + " as they are playing " + gameColorToString(colorOfHost));
     }
   }
 
@@ -271,9 +317,7 @@ public class ControlDiscord implements ControlGameProxy.Listener {
         while(!getGame().isFinished()) {
           try {
             Thread.sleep(100);
-          } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-          }
+          } catch (InterruptedException e) { /* no */ }
         }
         setState(State.RunningGame, false);
       }).start();
@@ -282,39 +326,45 @@ public class ControlDiscord implements ControlGameProxy.Listener {
   }
 
   private synchronized void onHostingGame(Message message) {
-    if(!isInState(State.RunningGame)) {
+    Optional<User> player = message.getAuthor();
+    if(!isInState(State.RunningGame) && player.isPresent()) {
       if(message.getContent().startsWith(selfInMessage + " " + JOIN_GAME)){
           Color joiningPlayerColor = getColorFromEnd(message.getContent());
 
           if( (joiningPlayerColor == Black || joiningPlayerColor == White) && 
               !mCurrentGamePlayers.containsKey(joiningPlayerColor)){
 
-            message.getAuthor().ifPresent( a ->{
-              addPlayerToGame(joiningPlayerColor, a.getId());
-              info("Added player " + a.getUsername() + "(" +a.getId().asString() + ") as " + Util.gameColorToString(joiningPlayerColor) );
+            addPlayerToGame(joiningPlayerColor, player.get().getId());
+            info("Added player " + player.get().getUsername() + "(" + player.get().getId().asString() + ") as " + Util.gameColorToString(joiningPlayerColor) );
 
-              replyToMessage(message, JOIN_ACCEPT + Util.gameColorToString(joiningPlayerColor));
-            });
+            replyToMessage(player.get(), JOIN_ACCEPT + Util.gameColorToString(joiningPlayerColor));
 
             beginGame();
           } else {
-            replyToMessage(message, JOIN_REJECT + gameColorToString(joiningPlayerColor));
+            replyToMessage(player.get(), JOIN_REJECT + gameColorToString(joiningPlayerColor));
           }
         }
+    }
+  }
+
+  private void beginGame() {
+    if(mCurrentGamePlayers.containsKey(White) && mCurrentGamePlayers.containsKey(Black)){
+      setState(State.RunningGame, true);
+      sendMessage(GAME_START + new HashSet<>(mCurrentGamePlayers.values()).stream().map(s -> "<@" + s.asString() + ">").collect(Collectors.joining(", ")));
+
+      ControlGameProxy.resetGame();
+      info("Started game with " + mCurrentGamePlayers.keySet().stream().map(c -> Util.gameColorToString(c) + ": " + mCurrentGamePlayers.get(c).asString()).collect(Collectors.joining(", ")) );
+
       new Thread( () -> {
         while(!getGame().isFinished()) {
           try {
             Thread.sleep(100);
-          } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-          }
+          } catch (InterruptedException e) { /* no */ }
         }
 
         try {
           Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
+        } catch (InterruptedException e) { /* no */ }
         sendMessage("Game finished\n " +
                 userInChannel(mCurrentGamePlayers.get(Black)) + " (" + gameColorToString(Black) + ") " + getGame().score().get(Black) +
                 " <> " +
@@ -327,25 +377,13 @@ public class ControlDiscord implements ControlGameProxy.Listener {
     }
   }
 
-  private void beginGame() {
-    if(mCurrentGamePlayers.containsKey(White) && mCurrentGamePlayers.containsKey(Black)){
-      setState(State.RunningGame, true);
-      sendMessage(GAME_START + new HashSet<>(mCurrentGamePlayers.values()).stream().map(s -> "<@" + s.asString() + ">").collect(Collectors.joining(", ")));
-
-      ControlGameProxy.resetGame();
-      info("Started game with " + mCurrentGamePlayers.keySet().stream().map(c -> Util.gameColorToString(c) + ": " + mCurrentGamePlayers.get(c).asString()).collect(Collectors.joining(", ")) );
-    }
-  }
-
   private synchronized void onRunningGame(Message message) {
     if(!getGame().isFinished()){
       Optional<User> possiblePlayer = message.getAuthor();
-      System.out.println(possiblePlayer);
-      System.out.println(message.getContent());
       if( possiblePlayer.isPresent() &&
           mCurrentGamePlayers.get(getGame().getCurrentPlayer()).equals(possiblePlayer.get().getId())
         ) {
-        System.out.println("Ha " + message.getContent());
+
         if(message.getContent().equals(TURN_START + TURN_PASS)){
           info("Player " + gameColorToString(getGame().getCurrentPlayer()) + " passed turn");
           takeTurn(null);
@@ -382,18 +420,16 @@ public class ControlDiscord implements ControlGameProxy.Listener {
     }
   }
 
-  private void replyToMessage(Message message, String reply) {
+  private void replyToMessage(User sender, String reply) {
     synchronized (this) {
-      message.getAuthor().ifPresent(a -> {
-        connection.getChannelById(channelByGuildAndName.get(mSelectedChannel)).blockOptional()
-            .map(TextChannel.class::cast)
-            .ifPresent(
-                c -> {
-                  c.createMessage(userInChannel(a) + reply).block();
-                  info("Replied with to channel " + mSelectedChannel + ": " + userInChannel(a) + reply);
-                }
-            );
-      });
+      connection.getChannelById(channelByGuildAndName.get(mSelectedChannel)).blockOptional()
+          .map(TextChannel.class::cast)
+          .ifPresent(
+              c -> {
+                c.createMessage(userInChannel(sender) + reply).block();
+                info("Replied with to channel " + mSelectedChannel + ": " + userInChannel(sender) + reply);
+              }
+          );
       try {
         Thread.sleep(DELAY); // safeguard against spamming
       } catch (Exception e) { /* no */ }
