@@ -1,7 +1,7 @@
 package de.fhkiel.ki.cathedral.gui;
 
-import static de.fhkiel.ki.cathedral.gui.CathedralGUI.getGame;
-import static de.fhkiel.ki.cathedral.gui.CathedralGUI.register;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.getGame;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.register;
 import static de.fhkiel.ki.cathedral.gui.Util.gameColorToFontcolor;
 import static de.fhkiel.ki.cathedral.gui.Util.gameColorToPaint;
 
@@ -29,7 +29,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
-class AI extends JPanel implements CathedralGUI.Listener {
+class AI extends JPanel implements ControlGameProxy.Listener {
 
   private final Agent agent;
   private final int turnTime = 30; // TODO implement timers
@@ -141,7 +141,7 @@ class AI extends JPanel implements CathedralGUI.Listener {
       try {
         Optional<Placement> possiblePlacement = agent.calculateTurn(getGame().copy(), turnTime, bonusTime);
         turnIsCalculated = false;
-        possiblePlacement.ifPresentOrElse(CathedralGUI::takeTurn, () -> CathedralGUI.takeTurn(null));
+        possiblePlacement.ifPresentOrElse(ControlGameProxy::takeTurn, () -> ControlGameProxy.takeTurn(null));
       } catch (Exception exception) {
         SwingUtilities.invokeLater(() -> addText("Exception taking turn: " + exception.getMessage()));
         turnIsCalculated = false;
