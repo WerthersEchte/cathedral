@@ -8,3 +8,6 @@
 [Using the GUI](./gui.html)  
 [Creating an agent](./agent.html)  
 
+
+[Using discord](./discord.html)  
+
