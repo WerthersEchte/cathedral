@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
@@ -190,11 +191,36 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
 
     add(game);
 
+    JPanel send = new JPanel();
+    send.setLayout(new BoxLayout(send, BoxLayout.LINE_AXIS));
+    send.setMinimumSize(new Dimension(0, 25));
+    send.setPreferredSize(new Dimension(0, 25));
+    send.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+
+    JTextField toSendToDiscord = new JTextField("");
+
+    JButton sendToDiscord = new JButton("Send:");
+    sendToDiscord.setPreferredSize(new Dimension(50, 0));
+    sendToDiscord.setMargin(new Insets(0, 0, 0, 0));
+    sendToDiscord.addActionListener(e -> sendToDiscord(toSendToDiscord.getText()));
+    send.add(sendToDiscord);
+
+    toSendToDiscord.addActionListener(a -> sendToDiscord(toSendToDiscord.getText()));
+    send.add(toSendToDiscord);
+
+    add(send);
+
     discordConsole = new JTextArea();
     JScrollPane scrollConsole = new JScrollPane(discordConsole,
         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     add(scrollConsole);
+  }
+
+  private void sendToDiscord(String text) {
+    if(!text.isBlank() && !text.isEmpty()){
+      discordconnection.sendMessage(text);
+    }
   }
 
   private void setToken() {

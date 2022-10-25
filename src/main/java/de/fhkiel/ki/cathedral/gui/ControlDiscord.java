@@ -443,33 +443,37 @@ class ControlDiscord implements ControlGameProxy.Listener {
     }
   }
 
-  private synchronized void sendMessage(String message) {
+  synchronized void sendMessage(String message) {
     synchronized (this) {
-      connection.getChannelById(channelByGuildAndName.get(mSelectedChannel)).blockOptional()
-          .map(TextChannel.class::cast)
-          .ifPresent(
-              c -> c.createMessage(message).block()
-          );
-      try {
-        Thread.sleep(DELAY); // safeguard against spamming
-      } catch (Exception e) { /* no */ }
+      if(connection != null) {
+        connection.getChannelById(channelByGuildAndName.get(mSelectedChannel)).blockOptional()
+            .map(TextChannel.class::cast)
+            .ifPresent(
+                c -> c.createMessage(message).block()
+            );
+        try {
+          Thread.sleep(DELAY); // safeguard against spamming
+        } catch (Exception e) { /* no */ }
+      }
     }
   }
 
-  public void sendMessage(String message, BufferedImage gameState) {
+  void sendMessage(String message, BufferedImage gameState) {
     synchronized (this) {
-      connection.getChannelById(channelByGuildAndName.get(mSelectedChannel)).blockOptional()
-          .map(TextChannel.class::cast)
-          .ifPresent(
-              c -> c.createMessage(
-                  MessageCreateSpec.builder()
-                      .content(message)
-                      .addFile("game.png", asInputStream(gameState))
-                      .build()).block()
-          );
-      try {
-        Thread.sleep(DELAY); // safeguard against spamming
-      } catch (Exception e) { /* no */ }
+      if(connection != null) {
+        connection.getChannelById(channelByGuildAndName.get(mSelectedChannel)).blockOptional()
+            .map(TextChannel.class::cast)
+            .ifPresent(
+                c -> c.createMessage(
+                    MessageCreateSpec.builder()
+                        .content(message)
+                        .addFile("game.png", asInputStream(gameState))
+                        .build()).block()
+            );
+        try {
+          Thread.sleep(DELAY); // safeguard against spamming
+        } catch (Exception e) { /* no */ }
+      }
     }
   }
 
