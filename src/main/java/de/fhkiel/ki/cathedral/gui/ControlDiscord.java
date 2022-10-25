@@ -52,7 +52,6 @@ class ControlDiscord implements ControlGameProxy.Listener {
   public static final String TURN_PASS = "pass";
   public static final int DELAY = 500;
 
-
   public interface Listener{
     void info(String info);
     void channelChanged();
@@ -507,6 +506,12 @@ class ControlDiscord implements ControlGameProxy.Listener {
   @Override
   public void noPlacement() {
     sendTurn(null);
+  }
+
+  public void resetAll() {
+    setState(State.HostingGame, false);
+    setState(State.JoiningGame, false);
+    setState(State.RunningGame, false);
   }
 
   enum State{

@@ -21,6 +21,7 @@ import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.util.OrderUtil;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -160,6 +161,13 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     game.setMinimumSize(new Dimension(0, 25));
     game.setPreferredSize(new Dimension(0, 25));
     game.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+
+    JButton resetAll = new JButton("X");
+    resetAll.setPreferredSize(new Dimension(25, 25));
+    resetAll.setMaximumSize(new Dimension(25, 25));
+    resetAll.setMargin(new Insets(0, 0, 0, 0));
+    resetAll.addActionListener(e -> this.discordconnection.resetAll());
+    game.add(resetAll);
 
     JButton gameStart = new JButton("Start Game");
     gameStart.addActionListener(e -> this.discordconnection.startGame());
