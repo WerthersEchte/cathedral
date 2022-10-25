@@ -1,6 +1,5 @@
 package de.fhkiel.ki.cathedral.gui;
 
-import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.takeTurn;
 import static de.fhkiel.ki.cathedral.gui.Log.getLog;
 
 import de.fhkiel.ki.cathedral.game.Building;

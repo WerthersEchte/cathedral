@@ -6,7 +6,7 @@ import de.fhkiel.ki.cathedral.game.Turn;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ControlGameProxy {
+class ControlGameProxy {
   private static final Set<Listener> listeners = new HashSet<>();
   private static Game GAME;
 
