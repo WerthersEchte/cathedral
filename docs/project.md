@@ -43,6 +43,7 @@ flatDir {
 12. Add to the `dependencies` section following code
 ```gradle
 implementation name: 'cathedral-game-1.0'
+implementation "com.discord4j:discord4j-core:3.2.3"
 ```
 
 __<span style="color:red">If you use newer binaries change `cathedral-game-1.0` to the ones you use</span>__  
@@ -67,6 +68,8 @@ repositories {
 
 dependencies {
     implementation name: 'cathedral-game-1.0'
+    implementation "com.discord4j:discord4j-core:3.2.3"
+    
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
