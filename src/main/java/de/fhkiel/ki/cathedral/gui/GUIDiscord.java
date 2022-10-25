@@ -116,7 +116,7 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     state.add(mStateRunningGame = new JLabel("Running"));
     mStateRunningGame.setForeground(java.awt.Color.RED);
 
-    state.add(new JLabel(" |  Color: "));
+    state.add(new JLabel(" |  Playing color: "));
     JToggleButton colorBlack = new JToggleButton("Black");
     colorBlack.setSelected(true);
     JToggleButton colorWhite = new JToggleButton("White");
