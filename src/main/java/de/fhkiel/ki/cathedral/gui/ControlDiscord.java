@@ -130,15 +130,19 @@ class ControlDiscord implements ControlGameProxy.Listener {
               generateValues();
               getChannel();
               addDefaultDiscordListener();
+
+              setState(State.Connected, true);
             },
             () -> info("Could not connect to Discord!")
         );
       } catch ( ClientException noConnection){
         info("Could not connect to Discord! " + noConnection.getMessage());
+        setState(State.Connected, false);
       }
     } else if(connection != null) {
       connection.logout().block();
       connection = null;
+      setState(State.Connected, false);
     }
 
     return connection != null;
@@ -506,7 +510,7 @@ class ControlDiscord implements ControlGameProxy.Listener {
   }
 
   enum State{
-    HostingGame, JoiningGame, AutoJoinGame, RunningGame
+    HostingGame, JoiningGame, AutoJoinGame, Connected, RunningGame
   }
   private final Set<State> mCurrentStates = new HashSet<>();
   private void setState(State state, boolean on) {

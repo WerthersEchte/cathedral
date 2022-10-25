@@ -57,7 +57,7 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
   private JComboBox<String> channelList, gameList;
 
 
-  private JLabel mStateHostingGame, mStateJoiningGame, mStateAutoJoinGame, mStateRunningGame;
+  private JLabel mStateConnected, mStateHostingGame, mStateJoiningGame, mStateAutoJoinGame, mStateRunningGame;
 
   JPanel mGameBoard;
   private ControlDiscord discordconnection;
@@ -101,6 +101,9 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     state.setPreferredSize(new Dimension(0, 25));
     state.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
 
+    state.add(mStateConnected = new JLabel("Connected"));
+    mStateConnected.setForeground(java.awt.Color.RED);
+    state.add(new JLabel(" | "));
     state.add(mStateHostingGame = new JLabel("Hosting"));
     mStateHostingGame.setForeground(java.awt.Color.RED);
     state.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -240,6 +243,11 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
 
   @Override
   public void stateChanged() {
+    if(discordconnection.getState().contains(ControlDiscord.State.Connected)){
+      mStateConnected.setForeground(java.awt.Color.GREEN);
+    } else {
+      mStateConnected.setForeground(java.awt.Color.RED);
+    }
     if(discordconnection.getState().contains(ControlDiscord.State.HostingGame)){
       mStateHostingGame.setForeground(java.awt.Color.GREEN);
     } else {
