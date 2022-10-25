@@ -78,17 +78,19 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     JToggleButton connectionToggle = new JToggleButton("Connect");
     connectionToggle.setPreferredSize(new Dimension(100, 0));
     connectionToggle.addItemListener(itemEvent -> {
+      setToken();
+      connectionToggle.setSelected(this.discordconnection.connect(connectionToggle.isSelected()));
       if(connectionToggle.isSelected()){
         connectionToggle.setText("Disconnect");
       } else {
         connectionToggle.setText("Connect");
       }
-      this.discordconnection.connect(connectionToggle.isSelected());
     });
     connection.add(connectionToggle);
 
     connection.add(new JLabel(" Token: "));
     token = new JPasswordField(discordconnection.getToken());
+    token.addActionListener(a -> setToken());
     connection.add(token);
 
     add(connection);
@@ -182,6 +184,14 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
         ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
         ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     add(scrollConsole);
+  }
+
+  private void setToken() {
+    StringBuilder token = new StringBuilder("");
+    for(char c : this.token.getPassword()){
+      token.append(c);
+    }
+    discordconnection.setToken(token.toString());
   }
 
   private void setAutoJoin(boolean on) {

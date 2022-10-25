@@ -24,6 +24,7 @@ import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.core.util.OrderUtil;
+import discord4j.rest.http.client.ClientException;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -39,7 +40,7 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 
-public class ControlDiscord implements ControlGameProxy.Listener {
+class ControlDiscord implements ControlGameProxy.Listener {
 
   private static final String JOIN_GAME = "joining game: playing ";
   private static final String JOIN_REJECT = "can not join as ";
@@ -115,23 +116,26 @@ public class ControlDiscord implements ControlGameProxy.Listener {
   private GatewayDiscordClient connection = null;
   boolean connect(boolean connect) {
     if(connect && connection == null){
-      connection = DiscordClient.create(mToken)
-          .gateway()
-          .setInitialPresence(ignore -> ClientPresence.online(ClientActivity.of(Activity.Type.CUSTOM, "Setting up", null)))
-          .login()
-          .block();
+      try {
+        connection = DiscordClient.create(mToken)
+            .gateway()
+            .setInitialPresence(ignore -> ClientPresence.online(ClientActivity.of(Activity.Type.CUSTOM, "Setting up", null)))
+            .login()
+            .block();
 
-      Optional.ofNullable(connection).ifPresentOrElse(
-          c -> {
-            c.getSelf().blockOptional().ifPresent( u -> info("Connected as " + u.getUsername()));
+        Optional.ofNullable(connection).ifPresentOrElse(
+            c -> {
+              c.getSelf().blockOptional().ifPresent(u -> info("Connected as " + u.getUsername()));
 
-            generateValues();
-            getChannel();
-            addDefaultDiscordListener();
-          },
-          () -> info("Could not connect to Discord!")
-      );
-
+              generateValues();
+              getChannel();
+              addDefaultDiscordListener();
+            },
+            () -> info("Could not connect to Discord!")
+        );
+      } catch ( ClientException noConnection){
+        info("Could not connect to Discord! " + noConnection.getMessage());
+      }
     } else if(connection != null) {
       connection.logout().block();
       connection = null;
