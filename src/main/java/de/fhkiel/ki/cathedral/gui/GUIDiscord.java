@@ -37,7 +37,8 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
 
   JPanel mGameBoard;
   private ControlDiscord discordconnection;
-  public GUIDiscord( ControlDiscord discordconnection, JPanel gameBoard) {
+
+  public GUIDiscord(ControlDiscord discordconnection, JPanel gameBoard) {
     this.discordconnection = discordconnection;
     discordconnection.register(this);
 
@@ -56,7 +57,7 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     connectionToggle.addItemListener(itemEvent -> {
       setToken();
       connectionToggle.setSelected(this.discordconnection.connect(connectionToggle.isSelected()));
-      if(connectionToggle.isSelected()){
+      if (connectionToggle.isSelected()) {
         connectionToggle.setText("Disconnect");
       } else {
         connectionToggle.setText("Connect");
@@ -99,7 +100,7 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     state.add(colorBlack);
     state.add(colorWhite);
     colorBlack.addItemListener(itemEvent -> {
-      if(colorBlack.isSelected()){
+      if (colorBlack.isSelected()) {
         colorWhite.setSelected(false);
         discordconnection.setPlayingColor(Black);
       } else {
@@ -108,7 +109,7 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
       }
     });
     colorWhite.addItemListener(itemEvent -> {
-      if(colorWhite.isSelected()){
+      if (colorWhite.isSelected()) {
         colorBlack.setSelected(false);
         discordconnection.setPlayingColor(White);
       } else {
@@ -192,14 +193,14 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
   }
 
   private void sendToDiscord(String text) {
-    if(!text.isBlank() && !text.isEmpty()){
+    if (!text.isBlank() && !text.isEmpty()) {
       discordconnection.sendMessage(text);
     }
   }
 
   private void setToken() {
     StringBuilder token = new StringBuilder("");
-    for(char c : this.token.getPassword()){
+    for (char c : this.token.getPassword()) {
       token.append(c);
     }
     discordconnection.setToken(token.toString());
@@ -212,6 +213,7 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
   }
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH.mm.ss.SSS");
+
   void addText(String text) {
     discordConsole.append(dateFormat.format(new Date()) + " " + text + (text.endsWith("\n") ? "" : "\n"));
     discordConsole.setCaretPosition(discordConsole.getDocument().getLength());
@@ -226,7 +228,7 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
   public void channelChanged() {
     Arrays.stream(channelList.getActionListeners()).forEach(actionListener -> channelList.removeActionListener(actionListener));
     channelList.removeAllItems();
-    for(String channel : discordconnection.getChannelList()){
+    for (String channel : discordconnection.getChannelList()) {
       channelList.addItem(channel);
     }
     channelList.setSelectedItem(discordconnection.getSelectedChannel());
@@ -238,40 +240,40 @@ class GUIDiscord extends JPanel implements ControlDiscord.Listener {
     String old = (String) gameList.getSelectedItem();
 
     gameList.removeAllItems();
-    for(String game : discordconnection.getJoinableGames()){
+    for (String game : discordconnection.getJoinableGames()) {
       gameList.addItem(game);
     }
-    if(discordconnection.getJoinableGames().contains(old)) {
+    if (discordconnection.getJoinableGames().contains(old)) {
       gameList.setSelectedItem(old);
     } else {
-      discordconnection.getJoinableGames().stream().findFirst().ifPresent(g ->gameList.setSelectedItem(g));
+      discordconnection.getJoinableGames().stream().findFirst().ifPresent(g -> gameList.setSelectedItem(g));
     }
     join.setEnabled(!discordconnection.getState().contains(ControlDiscord.State.AutoJoinGame) && gameList.getItemCount() > 0);
   }
 
   @Override
   public void stateChanged() {
-    if(discordconnection.getState().contains(ControlDiscord.State.Connected)){
+    if (discordconnection.getState().contains(ControlDiscord.State.Connected)) {
       mStateConnected.setForeground(java.awt.Color.GREEN);
     } else {
       mStateConnected.setForeground(java.awt.Color.RED);
     }
-    if(discordconnection.getState().contains(ControlDiscord.State.HostingGame)){
+    if (discordconnection.getState().contains(ControlDiscord.State.HostingGame)) {
       mStateHostingGame.setForeground(java.awt.Color.GREEN);
     } else {
       mStateHostingGame.setForeground(java.awt.Color.RED);
     }
-    if(discordconnection.getState().contains(ControlDiscord.State.AutoJoinGame)){
+    if (discordconnection.getState().contains(ControlDiscord.State.AutoJoinGame)) {
       mStateAutoJoinGame.setForeground(java.awt.Color.GREEN);
     } else {
       mStateAutoJoinGame.setForeground(java.awt.Color.RED);
     }
-    if(discordconnection.getState().contains(ControlDiscord.State.JoiningGame)){
+    if (discordconnection.getState().contains(ControlDiscord.State.JoiningGame)) {
       mStateJoiningGame.setForeground(java.awt.Color.GREEN);
     } else {
       mStateJoiningGame.setForeground(java.awt.Color.RED);
     }
-    if(discordconnection.getState().contains(ControlDiscord.State.RunningGame)){
+    if (discordconnection.getState().contains(ControlDiscord.State.RunningGame)) {
       mStateRunningGame.setForeground(java.awt.Color.GREEN);
     } else {
       mStateRunningGame.setForeground(java.awt.Color.RED);
