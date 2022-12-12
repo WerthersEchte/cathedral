@@ -58,6 +58,13 @@ public interface Agent {
   default String evaluateLastTurn(Game game){ return "No evaluation done"; }
 
   /**
+   * Called on game end.
+   *
+   * @param game the game
+   */
+  default void gameFinished(Game game){}
+
+  /**
    * Stops the agent. Any calculations, etc should be canceled
    */
   default void stop(){}
