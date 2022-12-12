@@ -130,6 +130,18 @@ class AI extends JPanel implements ControlGameProxy.Listener {
     addText(agent.evaluateLastTurn(getGame().copy()));
   }
 
+  private void gameFinished(){
+    if (getGame().isFinished()) {
+      new Thread(() -> {
+        try {
+          agent.gameFinished(getGame().copy());
+         } catch (Exception exception) {
+          SwingUtilities.invokeLater(() -> addText("Exception taking turn: " + exception.getMessage()));
+        }
+      }).start();
+    }
+  }
+
   private synchronized void takeTurn() {
     if (turnIsCalculated || getGame().isFinished()) {
       return;
@@ -184,6 +196,7 @@ class AI extends JPanel implements ControlGameProxy.Listener {
   @Override
   public void newPlacement(Placement placement) {
     autoTurn();
+    gameFinished();
   }
 
   @Override
