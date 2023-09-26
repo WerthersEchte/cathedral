@@ -3,11 +3,13 @@ plugins {
     // https://github.com/melix/jmh-gradle-plugin
     id "me.champeau.jmh" version "0.6.6"
     id 'jacoco'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+
+    id 'maven-publish'
+    id 'signing'
 }
 
-group 'de.fhkiel.ki'
-version '1.2'
+group 'io.github.werthersechte'
+version '1.4'
 
 sourceCompatibility = 16
 
@@ -31,11 +33,6 @@ test {
     useJUnitPlatform()
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 jacocoTestReport {
     reports {
         csv.enabled true
@@ -46,5 +43,75 @@ jacocoTestReport {
                     exclude: ['**/ai/**',
                               '**/gui/**'])
         }))
+    }
+}
+
+// maven central deploy
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign publishing.publications
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+
+            from components.java
+
+            pom {
+                name = project.name
+                description = "A cathedral implementation in Java"
+                url = "https://github.com/WerthersEchte/cathedral"
+                licenses {
+                    license {
+                        name = "The Unlicense"
+                        url = "https://unlicense.org"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "WerthersEchte"
+                        name = "Eike Petersen"
+                        email = "epetersen@gmx.li"
+                    }
+                }
+                scm {
+                    url = "https://github.com/WerthersEchte/cathedral"
+
+                    connection = "scm:git:git://github.com/WerthersEchte/cathedral.git"
+
+                    developerConnection = "scm:git:git://github.com/WerthersEchte/cathedral.git"
+
+                }
+                issueManagement {
+                    url = "https://github.com/WerthersEchte/cathedral/issues"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
     }
 }
