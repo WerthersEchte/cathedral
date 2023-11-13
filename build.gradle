@@ -9,7 +9,7 @@ plugins {
 }
 
 group 'io.github.werthersechte'
-version '1.4'
+version '1.4.1'
 
 sourceCompatibility = 16
 

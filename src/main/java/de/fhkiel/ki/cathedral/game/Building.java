@@ -313,7 +313,7 @@ public enum Building {
    * </pre>
    */
   White_Bridge(15, "White Bridge", Color.White, Turnable.Half,
-      new int[][] {{0, -1}, {0, 0}, {0, 1}}),
+      new int[][] {{0, 0}, {0, -1}, {0, 1}}),
 
   /**
    * The White manor.
