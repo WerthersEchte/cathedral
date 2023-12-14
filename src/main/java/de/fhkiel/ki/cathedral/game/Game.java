@@ -143,9 +143,19 @@ public class Game {
 
   /**
    * Forfeit the current turn.
-   * An no action {@link Turn} will be taken and the next player will be able to play.
+   * A no action {@link Turn} will be taken and the next player will be able to play.
+   * @deprecated since 1.4.4, use {@link Game#passTurn()} instead
    */
+  @Deprecated(since = "1.4.4")
   public void forfeitTurn() {
+    passTurn();
+  }
+
+  /**
+   * Pass the current turn.
+   * A no action {@link Turn} will be taken and the next player will be able to play.
+   */
+  public void passTurn() {
     turns.add(new Turn(turns.size(), lastTurn().getBoard().copy()));
   }
 
