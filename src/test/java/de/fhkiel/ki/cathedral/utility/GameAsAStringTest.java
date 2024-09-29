@@ -1,5 +1,6 @@
 package de.fhkiel.ki.cathedral.utility;
 
+import static de.fhkiel.ki.cathedral.utility.GameAsAString.PASS;
 import static de.fhkiel.ki.cathedral.utility.GameAsAString.gameToString;
 import static de.fhkiel.ki.cathedral.utility.GameAsAString.placementToString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,10 +21,10 @@ class GameAsAStringTest {
 
   private static Stream<Arguments> placementsForTest() {
     return Stream.of(
-        Arguments.of(new Placement(5, 5, Direction._90, Building.Blue_Cathedral ), "Cathedral 90 5 5"),
-        Arguments.of(new Placement(-5, 5, Direction._0, Building.Black_Tavern ), "Black_Tavern 0 -5 5"),
-        Arguments.of(new Placement(5, 555, Direction._180, Building.Black_Manor ), "Black_Manor 180 5 555"),
-        Arguments.of(new Placement(0, 0, Direction._270, Building.White_Academy ), "White_Academy 270 0 0")
+        Arguments.of(new Placement(5, 5, Direction._90, Building.Blue_Cathedral ), "23 90 5 5"),
+        Arguments.of(new Placement(-5, 5, Direction._0, Building.Black_Tavern ), "1 0 -5 5"),
+        Arguments.of(new Placement(5, 555, Direction._180, Building.Black_Manor ), "5 180 5 555"),
+        Arguments.of(new Placement(0, 0, Direction._270, Building.White_Academy ), "22 270 0 0")
     );
   }
 
@@ -54,12 +55,12 @@ class GameAsAStringTest {
     givenGame.passTurn();
     givenGame.takeTurn(new Placement(9, 9, Direction._0, Building.Black_Tavern ));
 
-    final String expected = "Cathedral 90 7 3\n" +
-        "Black_Manor 0 2 4\n" +
-        "White_Academy 270 7 7\n" +
-        "Pass\n" +
-        "Pass\n" +
-        "Black_Tavern 0 9 9\n";
+    final String expected = "23 90 7 3\n" +
+        "5 0 2 4\n" +
+        "22 270 7 7\n" +
+        PASS + "\n" +
+        PASS + "\n" +
+        "1 0 9 9\n";
     final String createdString = gameToString(givenGame);
 
     assertThat(createdString).isNotEmpty().isEqualTo(expected);
