@@ -1,6 +1,7 @@
 package de.fhkiel.ki.cathedral.gui;
 
 import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.getGame;
+import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.resetGame;
 import static de.fhkiel.ki.cathedral.gui.ControlGameProxy.takeTurn;
 import static de.fhkiel.ki.cathedral.utility.DataManagement.loadGame;
 import static de.fhkiel.ki.cathedral.utility.DataManagement.saveGame;
@@ -33,6 +34,7 @@ class Menu extends JMenuBar {
     menuItem.addActionListener(e -> {
           JFileChooser fileChooser = new JFileChooser(System.getProperty("user.dir"));
           if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
+            resetGame();
             loadGame(fileChooser.getSelectedFile().getAbsolutePath()).getTurns().stream()
                 .skip(1).forEachOrdered(turn -> takeTurn(turn.getAction()));
           }
