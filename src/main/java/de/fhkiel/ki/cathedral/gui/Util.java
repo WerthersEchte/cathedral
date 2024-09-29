@@ -80,7 +80,7 @@ class Util {
     };
   }
 
-  public static InputStream asInputStream(BufferedImage bi) {
+  static InputStream asInputStream(BufferedImage bi) {
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ImageIO.write(bi, "png", baos);
@@ -91,7 +91,7 @@ class Util {
     return InputStream.nullInputStream();
   }
 
-  public static Placement parseTurn(String trim) {
+  static Placement parseTurn(String trim) {
     try {
       String[] commands = trim.split(" ");
 

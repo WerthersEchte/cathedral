@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'io.github.werthersechte'
-version '1.4.2'
+version '1.4.4'
 
 sourceCompatibility = 16
 
@@ -18,19 +18,37 @@ repositories {
 dependencies {
     implementation "com.discord4j:discord4j-core:3.2.3"
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.8.1'
-    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.4.0'
-    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '4.4.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
+
+    testImplementation 'io.cucumber:cucumber-java:7.11.2'
+    testImplementation 'io.cucumber:cucumber-junit:7.11.2'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
 }
 
 test {
     useJUnitPlatform()
 }
 
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
 jacocoTestReport {
+    dependsOn test
     reports {
-        csv.enabled true
+        csv.required = true
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
