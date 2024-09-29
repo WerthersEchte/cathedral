@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'io.github.werthersechte'
-version '1.4.4'
+version '1.5.0'
 
 sourceCompatibility = 16
 
@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.discord4j:discord4j-core:3.2.3"
+    implementation "com.discord4j:discord4j-core:3.2.6"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'

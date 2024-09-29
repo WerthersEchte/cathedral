@@ -11,7 +11,7 @@ This is a Java implementation of the board game cathedral (https://en.wikipedia.
 ## How to get
 Add to gradle:
 ```
-implementation 'io.github.werthersechte:cathedral-game:1.4'
+implementation 'io.github.werthersechte:cathedral-game:1.5'
 ```
 
 Add to maven:
@@ -19,7 +19,7 @@ Add to maven:
  <dependency>
     <groupId>io.github.werthersechte</groupId>
     <artifactId>cathedral-game</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
  </dependency>
 ```
 ## Dependencies
@@ -27,4 +27,5 @@ Add to maven:
 
 ## More Information
 Javadocs can be found under [ https://javadoc.io/doc/io.github.werthersechte/cathedral-game]( https://javadoc.io/doc/io.github.werthersechte/cathedral-game)
+Examples and Explanations under [docs](docs)
 
