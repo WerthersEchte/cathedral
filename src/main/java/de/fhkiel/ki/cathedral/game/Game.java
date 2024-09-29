@@ -267,6 +267,15 @@ public class Game {
     return ignoreRules;
   }
 
+  /**
+   * Returns the list of taken turns
+   *
+   * @return returns all taken turns
+   */
+  public List<Turn> getTurns() {
+    return turns;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
