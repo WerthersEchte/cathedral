@@ -7,29 +7,30 @@ plugins {
 }
 
 group 'io.github.werthersechte'
-version '1.5.1'
+version '2.0.0'
 
-sourceCompatibility = 16
+sourceCompatibility = 21
 
 repositories {
     mavenCentral()
 }
 
+configurations {
+    mockitoAgent
+}
+
 dependencies {
-    implementation "com.discord4j:discord4j-core:3.2.6"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.14.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testImplementation 'org.assertj:assertj-core:3.27.7'
 
-    testImplementation 'org.assertj:assertj-core:3.24.2'
-
-    testImplementation 'org.mockito:mockito-core:5.2.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
-
-    testImplementation 'io.cucumber:cucumber-java:7.11.2'
-    testImplementation 'io.cucumber:cucumber-junit:7.11.2'
-    testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
+    testImplementation 'org.mockito:mockito-core:5.23.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.23.0'
+    mockitoAgent('org.mockito:mockito-core:5.23.0') {
+        transitive = false
+    }
 }
 
 test {
@@ -38,8 +39,14 @@ test {
 
 compileJava.options.encoding = 'UTF-8'
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks {
+    test {
+        jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
+    }
 }
 
 test {
@@ -49,13 +56,6 @@ jacocoTestReport {
     dependsOn test
     reports {
         csv.required = true
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it,
-                    exclude: ['**/ai/**',
-                              '**/gui/**'])
-        }))
     }
 }
 
@@ -117,10 +117,10 @@ publishing {
     }
     repositories {
         maven {
-            credentials {
-                username ossrhUsername
-                password ossrhPassword
-            }
+//            credentials {
+//                username ossrhUsername
+//                password ossrhPassword
+//            }
 
             def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"

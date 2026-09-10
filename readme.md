@@ -6,12 +6,12 @@
 [![javadoc](https://javadoc.io/badge2/io.github.werthersechte/cathedral-game/javadoc.svg)](https://javadoc.io/doc/io.github.werthersechte/cathedral-game)
 
 ## About
-This is a Java implementation of the board game cathedral (https://en.wikipedia.org/wiki/Cathedral_(board_game)). It indended use is for developing basic ki and ki adjacent programs. It contains only the needed gamelogic.
+This is a Java implementation of the board game cathedral (https://en.wikipedia.org/wiki/Cathedral_(board_game)). It intended use is for developing basic ki and ki adjacent programs. It contains only the needed gamelogic.
 
 ## How to get
 Add to gradle:
 ```
-implementation 'io.github.werthersechte:cathedral-game:1.5.1'
+implementation 'io.github.werthersechte:cathedral-game:2.0.0'
 ```
 
 Add to maven:
@@ -19,13 +19,7 @@ Add to maven:
  <dependency>
     <groupId>io.github.werthersechte</groupId>
     <artifactId>cathedral-game</artifactId>
-    <version>1.5.1</version>
+    <version>2.0.0</version>
  </dependency>
 ```
-## Dependencies
-- [Discord4j 3.2+](https://github.com/Discord4J/Discord4J)
-
-## More Information
-Javadocs can be found under [ https://javadoc.io/doc/io.github.werthersechte/cathedral-game]( https://javadoc.io/doc/io.github.werthersechte/cathedral-game)
-Examples and Explanations under [docs](docs)
 

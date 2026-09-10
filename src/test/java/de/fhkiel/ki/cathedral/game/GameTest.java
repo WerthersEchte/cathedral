@@ -1,7 +1,6 @@
 package de.fhkiel.ki.cathedral.game;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.reset;
@@ -9,14 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import de.fhkiel.ki.cathedral.game.Board;
-import de.fhkiel.ki.cathedral.game.Building;
-import de.fhkiel.ki.cathedral.game.Color;
-import de.fhkiel.ki.cathedral.game.Direction;
-import de.fhkiel.ki.cathedral.game.Game;
-import de.fhkiel.ki.cathedral.game.Placement;
-import de.fhkiel.ki.cathedral.game.Turn;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,15 +31,15 @@ class GameTest {
   void construction() {
     Game gameUnderTest = new Game(boardMock);
 
-    assertThat(gameUnderTest.lastTurn().getTurnNumber()).isEqualTo(0);
+    assertThat(gameUnderTest.lastTurn().getTurnNumber()).isZero();
     assertThat(gameUnderTest.lastTurn().hasAction()).isFalse();
-    assertThat(gameUnderTest.lastTurn().getAction()).isEqualTo(null);
+    assertThat(gameUnderTest.lastTurn().getAction()).isNull();
     assertThat(gameUnderTest.lastTurn().getBoard()).isEqualTo(boardMock);
 
     gameUnderTest = new Game();
-    assertThat(gameUnderTest.lastTurn().getTurnNumber()).isEqualTo(0);
+    assertThat(gameUnderTest.lastTurn().getTurnNumber()).isZero();
     assertThat(gameUnderTest.lastTurn().hasAction()).isFalse();
-    assertThat(gameUnderTest.lastTurn().getAction()).isEqualTo(null);
+    assertThat(gameUnderTest.lastTurn().getAction()).isNull();
     assertThat(gameUnderTest.lastTurn().getBoard()).isEqualTo(new Board());
   }
 
@@ -61,8 +53,8 @@ class GameTest {
     Game gameCopyUnderTest = gameUnderTest.copy();
     assertThat(gameCopyUnderTest).isEqualTo(gameUnderTest);
 
-    gameUnderTest.forfeitTurn();
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
+    gameUnderTest.passTurn();
     gameUnderTest.takeTurn(new Placement(5,5, Direction._0, Building.White_Academy));
     gameUnderTest.takeTurn(new Placement(5,5, Direction._0, Building.Blue_Cathedral));
     gameUnderTest.takeTurn(new Placement(5,5, Direction._0, Building.White_Academy));
@@ -220,9 +212,9 @@ class GameTest {
     when(boardMock.placeBuilding(any(Placement.class), anyBoolean())).thenReturn(true);
     Game gameUnderTest = new Game(boardMock);
 
-    assertThat(gameUnderTest.lastTurn().getTurnNumber()).isEqualTo(0);
+    assertThat(gameUnderTest.lastTurn().getTurnNumber()).isZero();
     assertThat(gameUnderTest.lastTurn().hasAction()).isFalse();
-    assertThat(gameUnderTest.lastTurn().getAction()).isEqualTo(null);
+    assertThat(gameUnderTest.lastTurn().getAction()).isNull();
     assertThat(gameUnderTest.lastTurn().getBoard()).isEqualTo(boardMock);
 
     Placement testPlacement = new Placement(5,5, Direction._0, Building.Blue_Cathedral);
@@ -233,11 +225,11 @@ class GameTest {
     assertThat(gameUnderTest.lastTurn().getAction()).isEqualTo(testPlacement);
     assertThat(gameUnderTest.lastTurn().getBoard()).isEqualTo(boardMock);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
 
     assertThat(gameUnderTest.lastTurn().getTurnNumber()).isEqualTo(2);
     assertThat(gameUnderTest.lastTurn().hasAction()).isFalse();
-    assertThat(gameUnderTest.lastTurn().getAction()).isEqualTo(null);
+    assertThat(gameUnderTest.lastTurn().getAction()).isNull();
     assertThat(gameUnderTest.lastTurn().getBoard()).isEqualTo(boardMock);
 
   }
@@ -245,8 +237,8 @@ class GameTest {
   @Test
   void undoLastTurn() {
     Game gameUnderTest = new Game();
-    gameUnderTest.forfeitTurn();
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
+    gameUnderTest.passTurn();
 
     Turn lastTurn = gameUnderTest.lastTurn();
 
@@ -277,7 +269,7 @@ class GameTest {
     Color currentPlayer = gameUnderTest.getCurrentPlayer();
     Turn turn = gameUnderTest.lastTurn();
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     assertThat(gameUnderTest.lastTurn()).isNotEqualTo(turn);
     assertThat(gameUnderTest.getCurrentPlayer()).isNotEqualTo(currentPlayer);
 
@@ -292,16 +284,16 @@ class GameTest {
 
     assertThat(gameUnderTest.getCurrentPlayer()).isEqualTo(Color.Blue);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     assertThat(gameUnderTest.getCurrentPlayer()).isEqualTo(Color.Black);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     assertThat(gameUnderTest.getCurrentPlayer()).isEqualTo(Color.White);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     assertThat(gameUnderTest.getCurrentPlayer()).isEqualTo(Color.Black);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     assertThat(gameUnderTest.getCurrentPlayer()).isEqualTo(Color.White);
 
     gameUnderTest.undoLastTurn();
@@ -342,15 +334,15 @@ class GameTest {
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(1)).getPlacableBuildings(Color.Blue);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(1)).getPlacableBuildings(Color.Black);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(1)).getPlacableBuildings(Color.White);
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(2)).getPlacableBuildings(Color.Black);
   }
@@ -364,15 +356,15 @@ class GameTest {
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(1)).getAllUnplacedBuildings();
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(2)).getAllUnplacedBuildings();
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(3)).getAllUnplacedBuildings();
 
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     gameUnderTest.getPlacableBuildings();
     verify(boardMock, times(4)).getAllUnplacedBuildings();
   }
@@ -391,13 +383,13 @@ class GameTest {
 
     Game gameUnderTest = new Game(board);
     assertThat(gameUnderTest.getBoard()).isSameAs(board);
-    gameUnderTest.forfeitTurn();
+    gameUnderTest.passTurn();
     assertThat(gameUnderTest.getBoard()).isNotSameAs(board);
   }
 
   @Test
   void score() {
-    Map<Color, Integer> scoreMap = new HashMap<>();
+    Map<Color, Integer> scoreMap = new EnumMap<>(Color.class);
     when(boardMock.score()).thenReturn(scoreMap);
 
     Game gameUnderTest = new Game(boardMock);
